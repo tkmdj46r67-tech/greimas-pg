@@ -39,13 +39,14 @@
                  Roboto, "Helvetica Neue", Arial, sans-serif);
     font-size: 15px;
     line-height: 1.45;
-    padding: 22px 16px 34px;
+    padding: 22px 20px 34px;
     display: flex;
     justify-content: center;
     -webkit-text-size-adjust: 100%;
   }
 
-  .gs-app { width: 100%; max-width: 680px; }
+  /* Wider canvas so the outer diamond's left/right vertices have room */
+  .gs-app { width: 100%; max-width: 900px; }
 
   /* ---------- Header ---------- */
   header { text-align: center; margin: 0 0 18px; }
@@ -108,21 +109,25 @@
     background: var(--gs-bg);
     text-align: center;
     line-height: 1.18;
-    overflow-wrap: anywhere;
-    word-break: break-word;
+    /* Only break a word if it truly cannot fit on one line */
+    overflow-wrap: break-word;
+    word-break: normal;
+    hyphens: none;
+    -webkit-hyphens: none;
   }
 
   .gs-term,
   .gs-meta {
-    padding: 5px 8px;
+    padding: 5px 9px;
     z-index: 2;
   }
-  .gs-term { max-width: 18%; }
-  .gs-meta { max-width: 16%; }
+  /* Generous max-width so single words are never split */
+  .gs-term { max-width: 20%; }
+  .gs-meta { max-width: 20%; }
 
   .gs-rel {
-    padding: 3px 6px;
-    max-width: 16%;
+    padding: 3px 7px;
+    max-width: 18%;
     z-index: 1;
     pointer-events: none;
   }
@@ -168,7 +173,7 @@
   }
 
   /* ---------- Positions ---------- */
-  /* Main terms — corners of inner square (31..69) */
+  /* Main terms — corners of inner square */
   .gs-tl { left: 31%; top: 31%; }
   .gs-tr { left: 69%; top: 31%; }
   .gs-bl { left: 31%; top: 69%; }
@@ -176,9 +181,9 @@
 
   /* Metaterms — vertices of outer dotted diamond */
   .gs-m1 { left: 50%; top: 6%; }
-  .gs-m2 { left: 94%; top: 50%; }
+  .gs-m2 { left: 93%; top: 50%; }
   .gs-m3 { left: 50%; top: 94%; }
-  .gs-m4 { left: 6%;  top: 50%; }
+  .gs-m4 { left: 7%;  top: 50%; }
 
   /* Relations — midpoints of the inner square's edges */
   .gs-rel-top    { left: 50%; top: 31%; }
@@ -272,17 +277,16 @@
     border-color: var(--gs-muted);
   }
 
-  /* ---------- Small screens ---------- */
-  @media (max-width: 520px) {
+  /* ---------- Narrow screens ---------- */
+  @media (max-width: 620px) {
     .gs-controls { grid-template-columns: 1fr; }
-    .gs-term { font-size: .95rem; max-width: 20%; padding: 4px 6px; }
-    .gs-term-main { font-size: .9rem; }
-    .gs-meta { max-width: 18%; }
-    .gs-rel { max-width: 18%; }
-    .gs-m1 { top: 4%; }
-    .gs-m3 { top: 96%; }
-    .gs-m2 { left: 96%; }
-    .gs-m4 { left: 4%; }
+    .gs-term { max-width: 24%; padding: 4px 6px; }
+    .gs-meta { max-width: 24%; padding: 4px 6px; }
+    .gs-rel  { max-width: 22%; }
+    .gs-term-main, .gs-meta-main { font-size: .84rem; }
+    .gs-rel-main { font-size: .64rem; }
+    .gs-term-label, .gs-meta-label { font-size: .56rem; }
+    .gs-rel-label { font-size: .5rem; }
   }
 </style>
 </head>
@@ -299,7 +303,7 @@
     <svg class="gs-lines" viewBox="0 0 100 100" preserveAspectRatio="none"
          aria-hidden="true" focusable="false">
       <!-- outer dotted diamond (metaterms) -->
-      <polygon class="gs-diamond" points="50,6 94,50 50,94 6,50" />
+      <polygon class="gs-diamond" points="50,6 93,50 50,94 7,50" />
 
       <!-- inner square (main terms) -->
       <line x1="31" y1="31" x2="69" y2="31"></line>
