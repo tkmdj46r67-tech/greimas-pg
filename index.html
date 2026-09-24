@@ -120,7 +120,7 @@
   .gs-term { max-width: 20%; }
   .gs-meta { max-width: 22%; }
 
-  /* Relations are now static labels */
+  /* Relations are static labels */
   .gs-rel {
     padding: 2px 7px;
     max-width: 18%;
@@ -301,7 +301,7 @@
 <div class="gs-app">
   <header>
     <h1>Extended Greimas Square</h1>
-    <p>Edit the four terms. The relations are fixed; the metaterms are generated automatically.</p>
+    <p>Edit the four terms, then press <strong>Update square</strong> to recompose the metaterms.</p>
   </header>
 
   <!-- ===== The square ===== -->
@@ -365,7 +365,7 @@
   <!-- ===== Editor: Terms ===== -->
   <div class="gs-section">
     <h2 class="gs-section-title">Terms</h2>
-    <p class="gs-section-note">These four fields drive the metaterms. Editing any of them recomposes M₁–M₄ live.</p>
+    <p class="gs-section-note">Edit these, then press <strong>Update square</strong> to recompose M₁–M₄.</p>
     <div class="gs-controls">
       <div class="gs-field">
         <label for="in-1"><span class="gs-tag">S₁</span> top left</label>
@@ -390,7 +390,7 @@
   <div class="gs-section">
     <h2 class="gs-section-title">Metaterms</h2>
     <p class="gs-section-note">
-      Generated deterministically from the terms above.
+      Generated from the terms above, on update.
       M₁ = S₁ · S₂ &nbsp;|&nbsp; M₂ = S₂ · ~S₂ &nbsp;|&nbsp; M₃ = ~S₁ · ~S₂ &nbsp;|&nbsp; M₄ = S₁ · ~S₁
     </p>
     <div class="gs-controls">
@@ -551,30 +551,13 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /*  Debounce                                                           */
-  /* ------------------------------------------------------------------ */
-
-  function debounce(fn, ms) {
-    var timer = null;
-    return function () {
-      var args = arguments;
-      var ctx  = this;
-      clearTimeout(timer);
-      timer = setTimeout(function () { fn.apply(ctx, args); }, ms);
-    };
-  }
-
-  /* ------------------------------------------------------------------ */
   /*  Event wiring                                                       */
+  /*                                                                     */
+  /*  Nothing is live. The diagram refreshes only on:                    */
+  /*    - clicking "Update square"                                       */
+  /*    - clicking "Reset"                                               */
+  /*    - pressing Enter inside a term field                             */
   /* ------------------------------------------------------------------ */
-
-  var liveMetaterms = debounce(function () {
-    renderMetaterms(true);
-  }, 120);
-
-  termInputs.forEach(function (input) {
-    input.addEventListener("input", liveMetaterms);
-  });
 
   byId("gs-update").addEventListener("click", function () {
     renderAll(true);
