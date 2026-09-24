@@ -269,7 +269,8 @@
     background: var(--gs-accent);
     color: var(--gs-accent-fg);
     cursor: pointer;
-    transition: filter .15s ease, transform .06s ease;
+    transition: filter .15s ease, transform .06s ease,
+                background-color .15s ease, color .15s ease, border-color .15s ease;
   }
   .gs-actions button:hover { filter: brightness(1.08); }
   .gs-actions button:active { transform: translateY(1px); }
@@ -283,6 +284,16 @@
     color: var(--gs-text);
     border-color: var(--gs-muted);
   }
+  .gs-actions button.gs-tertiary {
+    background: transparent;
+    color: var(--gs-accent);
+    border-color: var(--gs-accent);
+  }
+  .gs-actions button.gs-tertiary:hover {
+    filter: none;
+    background: var(--gs-accent);
+    color: var(--gs-accent-fg);
+  }
 
   /* ---------- Narrow screens ---------- */
   @media (max-width: 620px) {
@@ -293,6 +304,7 @@
     .gs-term-main { font-size: .84rem; }
     .gs-meta-main.is-derived { font-size: .74rem; }
     .gs-term-label, .gs-meta-label { font-size: .56rem; }
+    .gs-actions button { padding: 8px 16px; font-size: .82rem; }
   }
 </style>
 </head>
@@ -301,7 +313,7 @@
 <div class="gs-app">
   <header>
     <h1>Extended Greimas Square</h1>
-    <p>Edit the four terms, then press <strong>Update square</strong> to recompose the metaterms.</p>
+    <p>Edit the four terms, then press <strong>Update square</strong>. Use <strong>Rotate clockwise</strong> to cycle the terms around the square.</p>
   </header>
 
   <!-- ===== The square ===== -->
@@ -415,6 +427,7 @@
 
   <div class="gs-actions">
     <button type="button" id="gs-update">Update square</button>
+    <button type="button" id="gs-rotate" class="gs-tertiary">Rotate clockwise &#8635;</button>
     <button type="button" id="gs-reset" class="gs-secondary">Reset</button>
   </div>
 </div>
@@ -551,16 +564,47 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /*  Rotate terms clockwise                                             */
+  /*                                                                     */
+  /*  The four inner positions, taken clockwise, are:                    */
+  /*      TL (S1, index 0) -> TR (S2, index 1)                           */
+  /*      -> BR (~S2, index 3) -> BL (~S1, index 2) -> back to TL        */
+  /*                                                                     */
+  /*  So the value that currently sits in each slot moves one step       */
+  /*  clockwise, and the far side wraps around:                          */
+  /*      new[0] = old[2]   (BL -> TL)                                   */
+  /*      new[1] = old[0]   (TL -> TR)                                   */
+  /*      new[2] = old[3]   (BR -> BL)                                   */
+  /*      new[3] = old[1]   (TR -> BR)                                   */
+  /* ------------------------------------------------------------------ */
+
+  function rotateTermsClockwise() {
+    var v = termInputs.map(function (input) { return input.value; });
+
+    termInputs[0].value = v[2];
+    termInputs[1].value = v[0];
+    termInputs[2].value = v[3];
+    termInputs[3].value = v[1];
+
+    renderAll(true);
+  }
+
+  /* ------------------------------------------------------------------ */
   /*  Event wiring                                                       */
   /*                                                                     */
   /*  Nothing is live. The diagram refreshes only on:                    */
   /*    - clicking "Update square"                                       */
+  /*    - clicking "Rotate clockwise"                                    */
   /*    - clicking "Reset"                                               */
   /*    - pressing Enter inside a term field                             */
   /* ------------------------------------------------------------------ */
 
   byId("gs-update").addEventListener("click", function () {
     renderAll(true);
+  });
+
+  byId("gs-rotate").addEventListener("click", function () {
+    rotateTermsClockwise();
   });
 
   byId("gs-reset").addEventListener("click", function () {
