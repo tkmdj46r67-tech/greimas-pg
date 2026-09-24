@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Greimas Square</title>
+<title>Extended Greimas Square</title>
 <style>
   /* ---------- Theme tokens (adapts to Obsidian, falls back to light/dark) ---------- */
   :root {
@@ -45,7 +45,7 @@
     -webkit-text-size-adjust: 100%;
   }
 
-  .gs-app { width: 100%; max-width: 660px; }
+  .gs-app { width: 100%; max-width: 680px; }
 
   /* ---------- Header ---------- */
   header { text-align: center; margin: 0 0 18px; }
@@ -78,11 +78,13 @@
     display: block;
     overflow: visible;
   }
-  .gs-lines line {
+  .gs-lines line,
+  .gs-lines polygon {
     stroke: var(--gs-line);
     stroke-width: 2;
     vector-effect: non-scaling-stroke;
     stroke-linecap: round;
+    fill: none;
   }
   /* inner diagonals (implications) — dashed */
   .gs-lines line.gs-diag {
@@ -90,7 +92,7 @@
     opacity: .7;
   }
   /* outer metaterm diamond — dotted */
-  .gs-lines line.gs-diamond {
+  .gs-lines polygon.gs-diamond {
     stroke-dasharray: 1 6;
     stroke-linecap: round;
     opacity: .85;
@@ -173,10 +175,10 @@
   .gs-br { left: 69%; top: 69%; }
 
   /* Metaterms — vertices of outer dotted diamond */
-  .gs-m1 { left: 50%; top: 8%; }
-  .gs-m2 { left: 92%; top: 50%; }
-  .gs-m3 { left: 50%; top: 92%; }
-  .gs-m4 { left: 8%;  top: 50%; }
+  .gs-m1 { left: 50%; top: 6%; }
+  .gs-m2 { left: 94%; top: 50%; }
+  .gs-m3 { left: 50%; top: 94%; }
+  .gs-m4 { left: 6%;  top: 50%; }
 
   /* Relations — midpoints of the inner square's edges */
   .gs-rel-top    { left: 50%; top: 31%; }
@@ -236,3 +238,299 @@
     border-color: var(--gs-accent);
     box-shadow: 0 0 0 3px rgba(124, 108, 231, .18);
   }
+
+  /* ---------- Buttons ---------- */
+  .gs-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 22px;
+  }
+  .gs-actions button {
+    font: inherit;
+    font-size: .88rem;
+    font-weight: 600;
+    padding: 9px 22px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: var(--gs-accent);
+    color: var(--gs-accent-fg);
+    cursor: pointer;
+    transition: filter .15s ease, transform .06s ease;
+  }
+  .gs-actions button:hover { filter: brightness(1.08); }
+  .gs-actions button:active { transform: translateY(1px); }
+  .gs-actions button.gs-secondary {
+    background: transparent;
+    color: var(--gs-muted);
+    border-color: var(--gs-border);
+  }
+  .gs-actions button.gs-secondary:hover {
+    filter: none;
+    color: var(--gs-text);
+    border-color: var(--gs-muted);
+  }
+
+  /* ---------- Small screens ---------- */
+  @media (max-width: 520px) {
+    .gs-controls { grid-template-columns: 1fr; }
+    .gs-term { font-size: .95rem; max-width: 20%; padding: 4px 6px; }
+    .gs-term-main { font-size: .9rem; }
+    .gs-meta { max-width: 18%; }
+    .gs-rel { max-width: 18%; }
+    .gs-m1 { top: 4%; }
+    .gs-m3 { top: 96%; }
+    .gs-m2 { left: 96%; }
+    .gs-m4 { left: 4%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="gs-app">
+  <header>
+    <h1>Extended Greimas Square</h1>
+    <p>Edit any term or relation, then press <strong>Update square</strong>.</p>
+  </header>
+
+  <!-- ===== The square ===== -->
+  <div class="gs-stage">
+    <svg class="gs-lines" viewBox="0 0 100 100" preserveAspectRatio="none"
+         aria-hidden="true" focusable="false">
+      <!-- outer dotted diamond (metaterms) -->
+      <polygon class="gs-diamond" points="50,6 94,50 50,94 6,50" />
+
+      <!-- inner square (main terms) -->
+      <line x1="31" y1="31" x2="69" y2="31"></line>
+      <line x1="69" y1="31" x2="69" y2="69"></line>
+      <line x1="69" y1="69" x2="31" y2="69"></line>
+      <line x1="31" y1="69" x2="31" y2="31"></line>
+
+      <!-- inner diagonals (implication / contradiction) -->
+      <line class="gs-diag" x1="31" y1="31" x2="69" y2="69"></line>
+      <line class="gs-diag" x1="69" y1="31" x2="31" y2="69"></line>
+    </svg>
+
+    <!-- Main terms (S1..~S2) -->
+    <div class="gs-term gs-tl" id="term-1">
+      <div class="gs-term-main" id="term-1-main">Being</div>
+      <div class="gs-term-label">S₁</div>
+    </div>
+    <div class="gs-term gs-tr" id="term-2">
+      <div class="gs-term-main" id="term-2-main">Seeming</div>
+      <div class="gs-term-label">S₂</div>
+    </div>
+    <div class="gs-term gs-bl" id="term-3">
+      <div class="gs-term-main" id="term-3-main">Non-being</div>
+      <div class="gs-term-label">~S₁</div>
+    </div>
+    <div class="gs-term gs-br" id="term-4">
+      <div class="gs-term-main" id="term-4-main">Non-seeming</div>
+      <div class="gs-term-label">~S₂</div>
+    </div>
+
+    <!-- Relations (edges of inner square) -->
+    <div class="gs-rel gs-rel-top" id="rel-1">
+      <div class="gs-rel-main" id="rel-1-main">Contrary</div>
+      <div class="gs-rel-label">Contrary</div>
+    </div>
+    <div class="gs-rel gs-rel-bottom" id="rel-2">
+      <div class="gs-rel-main" id="rel-2-main">Subcontrary</div>
+      <div class="gs-rel-label">Subcontrary</div>
+    </div>
+    <div class="gs-rel gs-rel-left" id="rel-3">
+      <div class="gs-rel-main" id="rel-3-main">Contradiction</div>
+      <div class="gs-rel-label">Contradiction</div>
+    </div>
+    <div class="gs-rel gs-rel-right" id="rel-4">
+      <div class="gs-rel-main" id="rel-4-main">Contradiction</div>
+      <div class="gs-rel-label">Contradiction</div>
+    </div>
+
+    <!-- Metaterms (vertices of outer diamond) -->
+    <div class="gs-meta gs-m1" id="meta-1">
+      <div class="gs-meta-main" id="meta-1-main">Revelation</div>
+      <div class="gs-meta-label">M₁</div>
+    </div>
+    <div class="gs-meta gs-m2" id="meta-2">
+      <div class="gs-meta-main" id="meta-2-main">Paradox</div>
+      <div class="gs-meta-label">M₂</div>
+    </div>
+    <div class="gs-meta gs-m3" id="meta-3">
+      <div class="gs-meta-main" id="meta-3-main">Deception</div>
+      <div class="gs-meta-label">M₃</div>
+    </div>
+    <div class="gs-meta gs-m4" id="meta-4">
+      <div class="gs-meta-main" id="meta-4-main">Subterfuge</div>
+      <div class="gs-meta-label">M₄</div>
+    </div>
+  </div>
+
+  <!-- ===== Editor: Terms ===== -->
+  <div class="gs-section">
+    <h2 class="gs-section-title">Terms</h2>
+    <div class="gs-controls">
+      <div class="gs-field">
+        <label for="in-1"><span class="gs-tag">S₁</span> top left</label>
+        <input id="in-1" type="text" value="Being" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="gs-field">
+        <label for="in-2"><span class="gs-tag">S₂</span> top right</label>
+        <input id="in-2" type="text" value="Seeming" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="gs-field">
+        <label for="in-3"><span class="gs-tag">~S₁</span> bottom left</label>
+        <input id="in-3" type="text" value="Non-being" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="gs-field">
+        <label for="in-4"><span class="gs-tag">~S₂</span> bottom right</label>
+        <input id="in-4" type="text" value="Non-seeming" autocomplete="off" spellcheck="false" />
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Editor: Relations ===== -->
+  <div class="gs-section">
+    <h2 class="gs-section-title">Relations</h2>
+    <div class="gs-controls">
+      <div class="gs-field">
+        <label for="in-5">Top edge · contrary</label>
+        <input id="in-5" type="text" value="Contrary" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="gs-field">
+        <label for="in-6">Bottom edge · subcontrary</label>
+        <input id="in-6" type="text" value="Subcontrary" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="gs-field">
+        <label for="in-7">Left diagonal · contradiction</label>
+        <input id="in-7" type="text" value="Contradiction" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="gs-field">
+        <label for="in-8">Right diagonal · contradiction</label>
+        <input id="in-8" type="text" value="Contradiction" autocomplete="off" spellcheck="false" />
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Editor: Metaterms ===== -->
+  <div class="gs-section">
+    <h2 class="gs-section-title">Metaterms</h2>
+    <div class="gs-controls">
+      <div class="gs-field">
+        <label for="in-9"><span class="gs-tag">M₁</span> top vertex</label>
+        <input id="in-9" type="text" value="Revelation" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="gs-field">
+        <label for="in-10"><span class="gs-tag">M₂</span> right vertex</label>
+        <input id="in-10" type="text" value="Paradox" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="gs-field">
+        <label for="in-11"><span class="gs-tag">M₃</span> bottom vertex</label>
+        <input id="in-11" type="text" value="Deception" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="gs-field">
+        <label for="in-12"><span class="gs-tag">M₄</span> left vertex</label>
+        <input id="in-12" type="text" value="Subterfuge" autocomplete="off" spellcheck="false" />
+      </div>
+    </div>
+  </div>
+
+  <div class="gs-actions">
+    <button type="button" id="gs-update">Update square</button>
+    <button type="button" id="gs-reset" class="gs-secondary">Reset</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* Defaults */
+  var TERM_DEFAULTS = ["Being", "Seeming", "Non-being", "Non-seeming"];
+  var REL_DEFAULTS  = ["Contrary", "Subcontrary", "Contradiction", "Contradiction"];
+  var META_DEFAULTS = ["Revelation", "Paradox", "Deception", "Subterfuge"];
+
+  /* Collect DOM references */
+  function byId(id) { return document.getElementById(id); }
+
+  var termInputs = [1, 2, 3, 4].map(function (n) { return byId("in-" + n); });
+  var relInputs  = [5, 6, 7, 8].map(function (n) { return byId("in-" + n); });
+  var metaInputs = [9, 10, 11, 12].map(function (n) { return byId("in-" + n); });
+
+  var termBoxes  = [1, 2, 3, 4].map(function (n) { return byId("term-" + n); });
+  var relBoxes   = [1, 2, 3, 4].map(function (n) { return byId("rel-"  + n); });
+  var metaBoxes  = [1, 2, 3, 4].map(function (n) { return byId("meta-" + n); });
+
+  var termMains  = [1, 2, 3, 4].map(function (n) { return byId("term-" + n + "-main"); });
+  var relMains   = [1, 2, 3, 4].map(function (n) { return byId("rel-"  + n + "-main"); });
+  var metaMains  = [1, 2, 3, 4].map(function (n) { return byId("meta-" + n + "-main"); });
+
+  /* Restart a CSS animation by forcing a reflow */
+  function pulse(el) {
+    el.classList.remove("gs-pulse");
+    void el.offsetWidth;
+    el.classList.add("gs-pulse");
+  }
+
+  /* Write a value into a main line, using an em dash when empty */
+  function setMain(el, value) {
+    if (value) {
+      el.textContent = value;
+      el.classList.remove("is-empty");
+    } else {
+      el.textContent = "\u2014";   /* em dash */
+      el.classList.add("is-empty");
+    }
+  }
+
+  function render(animate) {
+    var i;
+
+    for (i = 0; i < 4; i++) {
+      setMain(termMains[i], termInputs[i].value.trim());
+      if (animate) pulse(termBoxes[i]);
+    }
+    for (i = 0; i < 4; i++) {
+      setMain(relMains[i], relInputs[i].value.trim());
+      if (animate) pulse(relBoxes[i]);
+    }
+    for (i = 0; i < 4; i++) {
+      setMain(metaMains[i], metaInputs[i].value.trim());
+      if (animate) pulse(metaBoxes[i]);
+    }
+  }
+
+  /* Update button */
+  byId("gs-update").addEventListener("click", function () {
+    render(true);
+  });
+
+  /* Reset button */
+  byId("gs-reset").addEventListener("click", function () {
+    var i;
+    for (i = 0; i < 4; i++) {
+      termInputs[i].value = TERM_DEFAULTS[i];
+      relInputs[i].value  = REL_DEFAULTS[i];
+      metaInputs[i].value = META_DEFAULTS[i];
+    }
+    render(true);
+  });
+
+  /* Enter key inside any field updates the square */
+  termInputs.concat(relInputs).concat(metaInputs).forEach(function (input) {
+    input.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        render(true);
+      }
+    });
+  });
+
+  /* First paint, no animation */
+  render(false);
+})();
+</script>
+
+</body>
+</html>
