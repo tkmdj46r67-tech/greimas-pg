@@ -120,11 +120,17 @@
   .gs-term { max-width: 20%; }
   .gs-meta { max-width: 22%; }
 
+  /* Relations are now static labels */
   .gs-rel {
-    padding: 3px 7px;
+    padding: 2px 7px;
     max-width: 18%;
     z-index: 1;
     pointer-events: none;
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--gs-muted);
+    text-transform: uppercase;
   }
 
   .gs-term-main,
@@ -135,20 +141,12 @@
     min-height: 1.18em;
   }
   .gs-meta-main.is-derived {
-    /* Slightly smaller so composed labels fit comfortably */
     font-size: .88rem;
     font-weight: 600;
   }
-  .gs-rel-main {
-    font-size: .72rem;
-    font-weight: 600;
-    color: var(--gs-text);
-    min-height: 1.18em;
-  }
 
   .gs-term-main.is-empty,
-  .gs-meta-main.is-empty,
-  .gs-rel-main.is-empty {
+  .gs-meta-main.is-empty {
     color: var(--gs-muted);
     font-weight: 400;
   }
@@ -157,14 +155,6 @@
   .gs-meta-label {
     margin-top: 3px;
     font-size: .62rem;
-    font-weight: 600;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: var(--gs-muted);
-  }
-  .gs-rel-label {
-    margin-top: 2px;
-    font-size: .55rem;
     font-weight: 600;
     letter-spacing: .1em;
     text-transform: uppercase;
@@ -299,12 +289,10 @@
     .gs-controls { grid-template-columns: 1fr; }
     .gs-term { max-width: 24%; padding: 4px 6px; }
     .gs-meta { max-width: 26%; padding: 4px 6px; }
-    .gs-rel  { max-width: 22%; }
+    .gs-rel  { max-width: 22%; font-size: .58rem; }
     .gs-term-main { font-size: .84rem; }
     .gs-meta-main.is-derived { font-size: .74rem; }
-    .gs-rel-main { font-size: .64rem; }
     .gs-term-label, .gs-meta-label { font-size: .56rem; }
-    .gs-rel-label { font-size: .5rem; }
   }
 </style>
 </head>
@@ -313,7 +301,7 @@
 <div class="gs-app">
   <header>
     <h1>Extended Greimas Square</h1>
-    <p>Edit the four terms and four relations. The metaterms are generated automatically.</p>
+    <p>Edit the four terms. The relations are fixed; the metaterms are generated automatically.</p>
   </header>
 
   <!-- ===== The square ===== -->
@@ -349,23 +337,11 @@
       <div class="gs-term-label">~S₂</div>
     </div>
 
-    <!-- Relations -->
-    <div class="gs-rel gs-rel-top" id="rel-1">
-      <div class="gs-rel-main" id="rel-1-main">Contrary</div>
-      <div class="gs-rel-label">Contrary</div>
-    </div>
-    <div class="gs-rel gs-rel-bottom" id="rel-2">
-      <div class="gs-rel-main" id="rel-2-main">Subcontrary</div>
-      <div class="gs-rel-label">Subcontrary</div>
-    </div>
-    <div class="gs-rel gs-rel-left" id="rel-3">
-      <div class="gs-rel-main" id="rel-3-main">Contradiction</div>
-      <div class="gs-rel-label">Contradiction</div>
-    </div>
-    <div class="gs-rel gs-rel-right" id="rel-4">
-      <div class="gs-rel-main" id="rel-4-main">Contradiction</div>
-      <div class="gs-rel-label">Contradiction</div>
-    </div>
+    <!-- Static relation labels -->
+    <div class="gs-rel gs-rel-top"    id="rel-1">Contrary</div>
+    <div class="gs-rel gs-rel-bottom" id="rel-2">Subcontrary</div>
+    <div class="gs-rel gs-rel-left"   id="rel-3">Contradiction</div>
+    <div class="gs-rel gs-rel-right"  id="rel-4">Contradiction</div>
 
     <!-- Metaterms (derived) -->
     <div class="gs-meta gs-m1" id="meta-1">
@@ -406,29 +382,6 @@
       <div class="gs-field">
         <label for="in-4"><span class="gs-tag">~S₂</span> bottom right</label>
         <input id="in-4" type="text" value="Non-seeming" autocomplete="off" spellcheck="false" />
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== Editor: Relations ===== -->
-  <div class="gs-section">
-    <h2 class="gs-section-title">Relations</h2>
-    <div class="gs-controls">
-      <div class="gs-field">
-        <label for="in-5">Top edge · contrary</label>
-        <input id="in-5" type="text" value="Contrary" autocomplete="off" spellcheck="false" />
-      </div>
-      <div class="gs-field">
-        <label for="in-6">Bottom edge · subcontrary</label>
-        <input id="in-6" type="text" value="Subcontrary" autocomplete="off" spellcheck="false" />
-      </div>
-      <div class="gs-field">
-        <label for="in-7">Left diagonal · contradiction</label>
-        <input id="in-7" type="text" value="Contradiction" autocomplete="off" spellcheck="false" />
-      </div>
-      <div class="gs-field">
-        <label for="in-8">Right diagonal · contradiction</label>
-        <input id="in-8" type="text" value="Contradiction" autocomplete="off" spellcheck="false" />
       </div>
     </div>
   </div>
@@ -477,7 +430,6 @@
   var SEP = " \u00B7 ";          /* middle dot, surrounded by spaces */
 
   var TERM_DEFAULTS = ["Being", "Seeming", "Non-being", "Non-seeming"];
-  var REL_DEFAULTS  = ["Contrary", "Subcontrary", "Contradiction", "Contradiction"];
 
   /* Traditional notation shown when a slot has no user value */
   var TERM_PLACEHOLDERS = ["S\u2081", "S\u2082", "~S\u2081", "~S\u2082"];
@@ -505,30 +457,18 @@
   function byId(id) { return document.getElementById(id); }
 
   var termInputs = [1, 2, 3, 4].map(function (n) { return byId("in-" + n); });
-  var relInputs  = [5, 6, 7, 8].map(function (n) { return byId("in-" + n); });
   var metaInputs = [9, 10, 11, 12].map(function (n) { return byId("in-" + n); });
 
   var termBoxes  = [1, 2, 3, 4].map(function (n) { return byId("term-" + n); });
-  var relBoxes   = [1, 2, 3, 4].map(function (n) { return byId("rel-"  + n); });
   var metaBoxes  = [1, 2, 3, 4].map(function (n) { return byId("meta-" + n); });
 
   var termMains  = [1, 2, 3, 4].map(function (n) { return byId("term-" + n + "-main"); });
-  var relMains   = [1, 2, 3, 4].map(function (n) { return byId("rel-"  + n + "-main"); });
   var metaMains  = [1, 2, 3, 4].map(function (n) { return byId("meta-" + n + "-main"); });
 
   /* ------------------------------------------------------------------ */
   /*  Core: deterministic metaterm composition                           */
   /* ------------------------------------------------------------------ */
 
-  /*
-   * Compose one metaterm from two parent terms.
-   * Returns { text, isEmpty }.
-   *
-   * Rules:
-   *   - Both parents filled  -> "A · B", not empty
-   *   - One parent filled    -> "A · ~S2" using the placeholder, marked empty
-   *   - Neither parent filled-> "S1 · S2" placeholders, marked empty
-   */
   function composeMetaterm(termA, termB, phA, phB) {
     var a = (termA || "").trim();
     var b = (termB || "").trim();
@@ -542,10 +482,6 @@
     };
   }
 
-  /*
-   * Given the four raw term strings, produce an array of four
-   * metaterm objects. Pure function — no DOM access.
-   */
   function deriveMetaterms(termValues) {
     return META_PAIRS.map(function (pair) {
       return composeMetaterm(
@@ -582,7 +518,6 @@
   /*  Render passes                                                      */
   /* ------------------------------------------------------------------ */
 
-  /* Inner terms: straight from their inputs. */
   function renderTerms(animate) {
     for (var i = 0; i < 4; i++) {
       setMain(termMains[i], termInputs[i].value);
@@ -590,18 +525,6 @@
     }
   }
 
-  /* Relations: straight from their inputs. */
-  function renderRelations(animate) {
-    for (var i = 0; i < 4; i++) {
-      setMain(relMains[i], relInputs[i].value);
-      if (animate) pulse(relBoxes[i]);
-    }
-  }
-
-  /*
-   * Metaterms: derived from the four term inputs.
-   * Writes to both the diagram boxes and the read-only fields.
-   */
   function renderMetaterms(animate) {
     var termValues = termInputs.map(function (input) { return input.value; });
     var derived = deriveMetaterms(termValues);
@@ -616,17 +539,14 @@
         el.classList.remove("is-empty");
       }
 
-      /* Keep the read-only field in sync */
       metaInputs[i].value = derived[i].text;
 
       if (animate) pulse(metaBoxes[i]);
     }
   }
 
-  /* Full render — used on initial paint, Update, and Reset. */
   function renderAll(animate) {
     renderTerms(animate);
-    renderRelations(animate);
     renderMetaterms(animate);
   }
 
@@ -648,11 +568,6 @@
   /*  Event wiring                                                       */
   /* ------------------------------------------------------------------ */
 
-  /*
-   * Live update of metaterms while typing in any term field.
-   * 120 ms is short enough to feel instant, long enough to avoid
-   * re-rendering on every keystroke of a fast typist.
-   */
   var liveMetaterms = debounce(function () {
     renderMetaterms(true);
   }, 120);
@@ -661,23 +576,18 @@
     input.addEventListener("input", liveMetaterms);
   });
 
-  /* Update button: manual full refresh (terms, relations, metaterms). */
   byId("gs-update").addEventListener("click", function () {
     renderAll(true);
   });
 
-  /* Reset button: restore all editable defaults, then re-derive. */
   byId("gs-reset").addEventListener("click", function () {
-    var i;
-    for (i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       termInputs[i].value = TERM_DEFAULTS[i];
-      relInputs[i].value  = REL_DEFAULTS[i];
     }
     renderAll(true);
   });
 
-  /* Enter inside any editable field triggers a full refresh. */
-  termInputs.concat(relInputs).forEach(function (input) {
+  termInputs.forEach(function (input) {
     input.addEventListener("keydown", function (event) {
       if (event.key === "Enter") {
         event.preventDefault();
