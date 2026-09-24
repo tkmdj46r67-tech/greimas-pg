@@ -45,37 +45,38 @@
     -webkit-text-size-adjust: 100%;
   }
 
-  .gs-app { width: 100%; max-width: 640px; }
+  .gs-app { width: 100%; max-width: 660px; }
 
   /* ---------- Header ---------- */
-  .gs-app header { text-align: center; margin: 0 0 18px; }
-  .gs-app header h1 {
+  header { text-align: center; margin: 0 0 18px; }
+  header h1 {
     margin: 0 0 4px;
     font-size: 1.05rem;
     font-weight: 600;
     letter-spacing: .01em;
   }
-  .gs-app header p {
+  header p {
     margin: 0;
     font-size: .8rem;
     color: var(--gs-muted);
   }
 
-  /* ---------- The square ---------- */
-  .gs-square {
+  /* ---------- Stage (square canvas) ---------- */
+  .gs-stage {
     position: relative;
     width: 100%;
     aspect-ratio: 1 / 1;
-    background: var(--gs-bg);
     margin: 0 auto;
   }
 
+  /* ---------- SVG lines ---------- */
   .gs-lines {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     display: block;
+    overflow: visible;
   }
   .gs-lines line {
     stroke: var(--gs-line);
@@ -83,101 +84,123 @@
     vector-effect: non-scaling-stroke;
     stroke-linecap: round;
   }
+  /* inner diagonals (implications) — dashed */
   .gs-lines line.gs-diag {
     stroke-dasharray: 6 6;
     opacity: .7;
   }
-
-  /* ---------- Terms (corners) ---------- */
-  .gs-term {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    max-width: 32%;
-    padding: 6px 10px;
-    border-radius: 8px;
-    background: var(--gs-bg);
-    text-align: center;
-    line-height: 1.2;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-    z-index: 2;
-  }
-  .gs-term-main {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--gs-text);
-    min-height: 1.2em;
-  }
-  .gs-term-main.is-empty { color: var(--gs-muted); font-weight: 400; }
-  .gs-term-label {
-    margin-top: 3px;
-    font-size: .62rem;
-    font-weight: 600;
-    letter-spacing: .09em;
-    text-transform: uppercase;
-    color: var(--gs-muted);
+  /* outer metaterm diamond — dotted */
+  .gs-lines line.gs-diamond {
+    stroke-dasharray: 1 6;
+    stroke-linecap: round;
+    opacity: .85;
   }
 
-  .gs-tl { left: 18%; top: 18%; }
-  .gs-tr { left: 82%; top: 18%; }
-  .gs-bl { left: 18%; top: 82%; }
-  .gs-br { left: 82%; top: 82%; }
-
-  /* ---------- Relations (edges) ---------- */
+  /* ---------- Shared node styling ---------- */
+  .gs-term,
+  .gs-meta,
   .gs-rel {
     position: absolute;
     transform: translate(-50%, -50%);
-    max-width: 28%;
-    padding: 3px 8px;
-    border-radius: 6px;
+    border-radius: 8px;
     background: var(--gs-bg);
     text-align: center;
-    line-height: 1.15;
+    line-height: 1.18;
     overflow-wrap: anywhere;
     word-break: break-word;
-    pointer-events: none;
+  }
+
+  .gs-term,
+  .gs-meta {
+    padding: 5px 8px;
+    z-index: 2;
+  }
+  .gs-term { max-width: 18%; }
+  .gs-meta { max-width: 16%; }
+
+  .gs-rel {
+    padding: 3px 6px;
+    max-width: 16%;
     z-index: 1;
+    pointer-events: none;
+  }
+
+  /* Main line + traditional label */
+  .gs-term-main,
+  .gs-meta-main {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gs-text);
+    min-height: 1.18em;
   }
   .gs-rel-main {
     font-size: .72rem;
     font-weight: 600;
     color: var(--gs-text);
-    min-height: 1.15em;
+    min-height: 1.18em;
   }
-  .gs-rel-main.is-empty { color: var(--gs-muted); font-weight: 400; }
+
+  .gs-term-main.is-empty,
+  .gs-meta-main.is-empty,
+  .gs-rel-main.is-empty {
+    color: var(--gs-muted);
+    font-weight: 400;
+  }
+
+  .gs-term-label,
+  .gs-meta-label {
+    margin-top: 3px;
+    font-size: .62rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--gs-muted);
+  }
   .gs-rel-label {
     margin-top: 2px;
     font-size: .55rem;
     font-weight: 600;
-    letter-spacing: .09em;
+    letter-spacing: .1em;
     text-transform: uppercase;
     color: var(--gs-muted);
   }
 
-  .gs-rel-top    { left: 50%; top: 18%; }
-  .gs-rel-bottom { left: 50%; top: 82%; }
-  .gs-rel-left   { left: 18%; top: 50%; }
-  .gs-rel-right  { left: 82%; top: 50%; }
+  /* ---------- Positions ---------- */
+  /* Main terms — corners of inner square (31..69) */
+  .gs-tl { left: 31%; top: 31%; }
+  .gs-tr { left: 69%; top: 31%; }
+  .gs-bl { left: 31%; top: 69%; }
+  .gs-br { left: 69%; top: 69%; }
+
+  /* Metaterms — vertices of outer dotted diamond */
+  .gs-m1 { left: 50%; top: 8%; }
+  .gs-m2 { left: 92%; top: 50%; }
+  .gs-m3 { left: 50%; top: 92%; }
+  .gs-m4 { left: 8%;  top: 50%; }
+
+  /* Relations — midpoints of the inner square's edges */
+  .gs-rel-top    { left: 50%; top: 31%; }
+  .gs-rel-bottom { left: 50%; top: 69%; }
+  .gs-rel-left   { left: 31%; top: 50%; }
+  .gs-rel-right  { left: 69%; top: 50%; }
 
   /* ---------- Pulse animation on update ---------- */
   @keyframes gs-pulse {
     from { transform: translate(-50%, -50%) scale(.92); opacity: .35; }
     to   { transform: translate(-50%, -50%) scale(1);   opacity: 1; }
   }
-  .gs-term.gs-pulse,
-  .gs-rel.gs-pulse { animation: gs-pulse .28s ease-out; }
+  .gs-pulse { animation: gs-pulse .28s ease-out; }
 
-  /* ---------- Form sections ---------- */
-  .gs-section { margin-top: 22px; }
+  /* ---------- Form ---------- */
+  .gs-section { margin-top: 24px; }
   .gs-section-title {
     margin: 0 0 10px;
     font-size: .7rem;
     font-weight: 700;
-    letter-spacing: .11em;
+    letter-spacing: .12em;
     text-transform: uppercase;
     color: var(--gs-muted);
   }
-
   .gs-controls {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -213,240 +236,3 @@
     border-color: var(--gs-accent);
     box-shadow: 0 0 0 3px rgba(124, 108, 231, .18);
   }
-
-  /* ---------- Buttons ---------- */
-  .gs-actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 22px;
-  }
-  .gs-actions button {
-    font: inherit;
-    font-size: .88rem;
-    font-weight: 600;
-    padding: 9px 22px;
-    border-radius: 8px;
-    border: 1px solid transparent;
-    background: var(--gs-accent);
-    color: var(--gs-accent-fg);
-    cursor: pointer;
-    transition: filter .15s ease, transform .06s ease;
-  }
-  .gs-actions button:hover { filter: brightness(1.08); }
-  .gs-actions button:active { transform: translateY(1px); }
-  .gs-actions button.gs-secondary {
-    background: transparent;
-    color: var(--gs-muted);
-    border-color: var(--gs-border);
-  }
-  .gs-actions button.gs-secondary:hover {
-    filter: none;
-    color: var(--gs-text);
-    border-color: var(--gs-muted);
-  }
-
-  /* ---------- Small screens ---------- */
-  @media (max-width: 520px) {
-    .gs-controls { grid-template-columns: 1fr; }
-    .gs-term { font-size: .95rem; max-width: 34%; padding: 5px 8px; }
-    .gs-term-main { font-size: .9rem; }
-    .gs-rel { max-width: 32%; }
-  }
-</style>
-</head>
-<body>
-
-<div class="gs-app">
-  <header>
-    <h1>Greimas Square</h1>
-    <p>Edit the four terms and four relations, then press <strong>Update square</strong>.</p>
-  </header>
-
-  <!-- ===== The square ===== -->
-  <div class="gs-square">
-    <svg class="gs-lines" viewBox="0 0 100 100" preserveAspectRatio="none"
-         aria-hidden="true" focusable="false">
-      <!-- outer square -->
-      <line x1="18" y1="18" x2="82" y2="18"></line>
-      <line x1="82" y1="18" x2="82" y2="82"></line>
-      <line x1="18" y1="18" x2="18" y2="82"></line>
-      <line x1="18" y1="82" x2="82" y2="82"></line>
-      <!-- diagonals -->
-      <line class="gs-diag" x1="18" y1="18" x2="82" y2="82"></line>
-      <line class="gs-diag" x1="82" y1="18" x2="18" y2="82"></line>
-    </svg>
-
-    <!-- Terms -->
-    <div class="gs-term gs-tl" id="term-1">
-      <div class="gs-term-main" id="term-1-main">Life</div>
-      <div class="gs-term-label">S₁</div>
-    </div>
-    <div class="gs-term gs-tr" id="term-2">
-      <div class="gs-term-main" id="term-2-main">Death</div>
-      <div class="gs-term-label">S₂</div>
-    </div>
-    <div class="gs-term gs-bl" id="term-3">
-      <div class="gs-term-main" id="term-3-main">Non-life</div>
-      <div class="gs-term-label">~S₁</div>
-    </div>
-    <div class="gs-term gs-br" id="term-4">
-      <div class="gs-term-main" id="term-4-main">Non-death</div>
-      <div class="gs-term-label">~S₂</div>
-    </div>
-
-    <!-- Relations -->
-    <div class="gs-rel gs-rel-top" id="rel-1">
-      <div class="gs-rel-main" id="rel-1-main">Contrary</div>
-      <div class="gs-rel-label">Contrary</div>
-    </div>
-    <div class="gs-rel gs-rel-bottom" id="rel-2">
-      <div class="gs-rel-main" id="rel-2-main">Subcontrary</div>
-      <div class="gs-rel-label">Subcontrary</div>
-    </div>
-    <div class="gs-rel gs-rel-left" id="rel-3">
-      <div class="gs-rel-main" id="rel-3-main">Contradiction</div>
-      <div class="gs-rel-label">Contradiction</div>
-    </div>
-    <div class="gs-rel gs-rel-right" id="rel-4">
-      <div class="gs-rel-main" id="rel-4-main">Contradiction</div>
-      <div class="gs-rel-label">Contradiction</div>
-    </div>
-  </div>
-
-  <!-- ===== Editor: Terms ===== -->
-  <div class="gs-section">
-    <h2 class="gs-section-title">Terms</h2>
-    <div class="gs-controls">
-      <div class="gs-field">
-        <label for="in-1"><span class="gs-tag">S₁</span> top left</label>
-        <input id="in-1" type="text" value="Life" autocomplete="off" spellcheck="false" />
-      </div>
-      <div class="gs-field">
-        <label for="in-2"><span class="gs-tag">S₂</span> top right</label>
-        <input id="in-2" type="text" value="Death" autocomplete="off" spellcheck="false" />
-      </div>
-      <div class="gs-field">
-        <label for="in-3"><span class="gs-tag">~S₁</span> bottom left</label>
-        <input id="in-3" type="text" value="Non-life" autocomplete="off" spellcheck="false" />
-      </div>
-      <div class="gs-field">
-        <label for="in-4"><span class="gs-tag">~S₂</span> bottom right</label>
-        <input id="in-4" type="text" value="Non-death" autocomplete="off" spellcheck="false" />
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== Editor: Relations ===== -->
-  <div class="gs-section">
-    <h2 class="gs-section-title">Relations</h2>
-    <div class="gs-controls">
-      <div class="gs-field">
-        <label for="in-5">Top edge &middot; contrary</label>
-        <input id="in-5" type="text" value="Contrary" autocomplete="off" spellcheck="false" />
-      </div>
-      <div class="gs-field">
-        <label for="in-6">Bottom edge &middot; subcontrary</label>
-        <input id="in-6" type="text" value="Subcontrary" autocomplete="off" spellcheck="false" />
-      </div>
-      <div class="gs-field">
-        <label for="in-7">Left diagonal &middot; contradiction</label>
-        <input id="in-7" type="text" value="Contradiction" autocomplete="off" spellcheck="false" />
-      </div>
-      <div class="gs-field">
-        <label for="in-8">Right diagonal &middot; contradiction</label>
-        <input id="in-8" type="text" value="Contradiction" autocomplete="off" spellcheck="false" />
-      </div>
-    </div>
-  </div>
-
-  <div class="gs-actions">
-    <button type="button" id="gs-update">Update square</button>
-    <button type="button" id="gs-reset" class="gs-secondary">Reset</button>
-  </div>
-</div>
-
-<script>
-(function () {
-  "use strict";
-
-  /* Defaults */
-  var TERM_DEFAULTS = ["Life", "Death", "Non-life", "Non-death"];
-  var REL_DEFAULTS  = ["Contrary", "Subcontrary", "Contradiction", "Contradiction"];
-
-  /* Collect DOM references */
-  function byId(id) { return document.getElementById(id); }
-
-  var termInputs = [1, 2, 3, 4].map(function (n) { return byId("in-" + n); });
-  var relInputs  = [5, 6, 7, 8].map(function (n) { return byId("in-" + n); });
-
-  var termBoxes  = [1, 2, 3, 4].map(function (n) { return byId("term-" + n); });
-  var relBoxes   = [1, 2, 3, 4].map(function (n) { return byId("rel-"  + n); });
-
-  var termMains  = [1, 2, 3, 4].map(function (n) { return byId("term-" + n + "-main"); });
-  var relMains   = [1, 2, 3, 4].map(function (n) { return byId("rel-"  + n + "-main"); });
-
-  /* Restart a CSS animation by forcing a reflow */
-  function pulse(el) {
-    el.classList.remove("gs-pulse");
-    void el.offsetWidth;
-    el.classList.add("gs-pulse");
-  }
-
-  /* Write a value into a main line, using an em dash when empty */
-  function setMain(el, value) {
-    if (value) {
-      el.textContent = value;
-      el.classList.remove("is-empty");
-    } else {
-      el.textContent = "\u2014";   /* em dash */
-      el.classList.add("is-empty");
-    }
-  }
-
-  function render(animate) {
-    var i;
-
-    for (i = 0; i < 4; i++) {
-      setMain(termMains[i], termInputs[i].value.trim());
-      if (animate) pulse(termBoxes[i]);
-    }
-    for (i = 0; i < 4; i++) {
-      setMain(relMains[i], relInputs[i].value.trim());
-      if (animate) pulse(relBoxes[i]);
-    }
-  }
-
-  /* Update button */
-  byId("gs-update").addEventListener("click", function () {
-    render(true);
-  });
-
-  /* Reset button */
-  byId("gs-reset").addEventListener("click", function () {
-    var i;
-    for (i = 0; i < 4; i++) {
-      termInputs[i].value = TERM_DEFAULTS[i];
-      relInputs[i].value  = REL_DEFAULTS[i];
-    }
-    render(true);
-  });
-
-  /* Enter key inside any field updates the square */
-  termInputs.concat(relInputs).forEach(function (input) {
-    input.addEventListener("keydown", function (event) {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        render(true);
-      }
-    });
-  });
-
-  /* First paint, no animation */
-  render(false);
-})();
-</script>
-
-</body>
-</html>
